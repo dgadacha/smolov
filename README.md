@@ -12,6 +12,10 @@ Site **100 % statique** : un seul fichier `index.html` (HTML/CSS/JS vanilla, auc
 - Charges arrondies au 5 kg inférieur, séries lourdes (≥ 90 %) mises en évidence.
 - Suivi des séances (cases à cocher) + barres de progression, sauvegardés dans le navigateur (localStorage).
 - Thème clair / sombre (bascule + respect de la préférence système, mémorisé).
+- Calculateur de disques par côté (poids de barre réglable), codes couleur IPF.
+- Application installable (PWA) + fonctionnement hors-ligne (service worker).
+- Export calendrier (.ics) : les 40 séances avec rappels, importables dans l'app calendrier native.
+- Icônes Lucide inline (aucune dépendance réseau).
 - Programme calé pour que le test final tombe le 31 décembre 2026 (dates de début modifiables).
 
 ## Utilisation locale
