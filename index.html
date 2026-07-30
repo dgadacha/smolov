@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Smolov · 105 → 130 kg</title>
+<style>
+  :root{
+    --bg:#0a0a0b; --panel:#111113; --panel2:#151517;
+    --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+    --tx:#ededee; --dim:#8b8b91; --dim2:#5f5f65;
+    --accent:#e6a345; --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--tx);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  body{padding:clamp(18px,4vw,56px) clamp(14px,4vw,40px);line-height:1.45}
+  .wrap{max-width:1120px;margin:0 auto}
+
+  /* header */
+  header{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap;margin-bottom:30px}
+  h1{font-size:clamp(30px,6vw,46px);font-weight:600;letter-spacing:.22em;line-height:1}
+  header p{color:var(--dim);font-size:12px;letter-spacing:.28em;text-transform:uppercase;margin-top:10px}
+  .goalchip{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+  .goalchip b{font-family:var(--mono);font-size:22px;font-weight:600}
+  .goalchip b span{color:var(--accent)}
+  .goalchip small{color:var(--dim);font-size:12px;letter-spacing:.04em}
+
+  /* controls */
+  .controls{display:flex;gap:10px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
+  .field{flex:1 1 130px;min-width:120px;display:flex;flex-direction:column;gap:6px}
+  .field label{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim2)}
+  .field .il{display:flex;align-items:baseline;gap:5px}
+  .field input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:10px;color:var(--tx);
+    font-family:var(--mono);font-size:17px;padding:9px 11px;outline:none;transition:border-color .15s}
+  .field input:focus{border-color:var(--accent)}
+  .field .hint{font-size:10px;color:var(--dim2)}
+  .field.auto label span{color:var(--accent);cursor:pointer;text-transform:none;letter-spacing:0;font-size:10px}
+  .field.auto label span:hover{text-decoration:underline}
+
+  /* progress */
+  .progress{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px 26px;margin-bottom:14px}
+  .ptrack{position:relative;height:4px;background:var(--line2);border-radius:4px;margin:26px 0 6px}
+  .pfill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,#5f5f65,var(--accent));border-radius:4px;transition:width .4s}
+  .pmark{position:absolute;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center}
+  .pmark i{width:11px;height:11px;border-radius:50%;background:var(--panel);border:2px solid var(--dim);display:block}
+  .pmark.on i{border-color:var(--accent);background:var(--accent)}
+  .pmark span{position:absolute;top:16px;white-space:nowrap;font-size:10.5px;color:var(--dim);letter-spacing:.02em}
+  .pmark b{position:absolute;bottom:16px;font-family:var(--mono);font-size:13px;white-space:nowrap}
+  .pcur{position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:50%;
+    background:transparent;border:2px solid var(--accent);box-shadow:0 0 0 4px rgba(230,163,69,.12);transition:left .4s}
+  .pcap{color:var(--dim);font-size:12.5px;margin-top:2px}
+  .pcap b{color:var(--tx);font-family:var(--mono)}
+
+  /* week nav */
+  nav.weeks{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px}
+  .navrow{display:flex;align-items:center;gap:8px}
+  .arrow{flex:0 0 auto;width:34px;height:34px;border-radius:10px;background:var(--panel2);border:1px solid var(--line);
+    color:var(--tx);font-size:16px;cursor:pointer;display:grid;place-items:center;transition:.15s}
+  .arrow:hover{border-color:var(--line2)}
+  .arrow:disabled{opacity:.3;cursor:default}
+  .pills{flex:1 1 auto;display:grid;grid-template-columns:repeat(13,1fr);gap:5px}
+  .pill{position:relative;border:1px solid var(--line);border-radius:9px;padding:9px 0 8px;text-align:center;cursor:pointer;transition:.15s;overflow:hidden}
+  .pill:hover{border-color:var(--line2)}
+  .pill .wn{font-family:var(--mono);font-size:13px;font-weight:600}
+  .pill .wt{display:block;font-size:8.5px;color:var(--dim2);letter-spacing:.02em;margin-top:1px}
+  .pill.on{border-color:var(--accent)}
+  .pill.on .wn{color:var(--accent)}
+  .pill.today::after{content:"";position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;background:var(--accent)}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+  .legend span{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)}
+  .legend i{width:10px;height:10px;border-radius:3px;display:block}
+
+  /* week head */
+  .weekhead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin:22px 2px 14px}
+  .weekhead .wt-name{font-size:22px;font-weight:600}
+  .weekhead .wt-name span{color:var(--dim);font-weight:400;font-size:15px;margin-left:8px}
+  .weekhead .wt-date{color:var(--dim);font-size:13px;margin-top:3px}
+  .refchip{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:12.5px;color:var(--dim)}
+  .refchip b{font-family:var(--mono);color:var(--tx)}
+
+  /* days */
+  .days{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+  .day{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:15px 15px 12px;display:flex;flex-direction:column}
+  .dtop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+  .dl{font-size:14px;font-weight:600;text-transform:capitalize}
+  .dd{font-size:11px;color:var(--dim2);font-family:var(--mono)}
+  .grps{display:flex;flex-direction:column;gap:2px}
+  .grp{display:grid;grid-template-columns:12px 1fr auto auto;align-items:center;gap:9px;padding:6px 2px;border-bottom:1px solid var(--line)}
+  .grp:last-child{border-bottom:0}
+  .dot{width:8px;height:8px;border-radius:50%}
+  .sr{font-family:var(--mono);font-size:14px}
+  .pc{font-size:11px;color:var(--dim);font-family:var(--mono)}
+  .wt{font-family:var(--mono);font-size:15px;font-weight:600;text-align:right}
+  .wt i{font-style:normal;font-size:9.5px;color:var(--dim2);margin-left:2px}
+  .dfoot{display:flex;justify-content:space-between;margin-top:10px;padding-top:9px;border-top:1px solid var(--line);font-size:10.5px;color:var(--dim2);letter-spacing:.02em}
+  .day.rest{opacity:.55}
+  .restbox{flex:1;display:grid;place-items:center;min-height:70px;color:var(--dim);font-size:13px;letter-spacing:.14em;text-transform:uppercase}
+  .day.test{border-color:rgba(230,163,69,.4);background:linear-gradient(180deg,rgba(230,163,69,.06),transparent)}
+  .testbox{flex:1;display:flex;flex-direction:column;gap:8px;justify-content:center;min-height:70px}
+  .tflag{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+  .trow{display:flex;justify-content:space-between;align-items:baseline}
+  .trow span{font-family:var(--mono);font-size:15px;color:var(--dim)}
+  .trow b{font-family:var(--mono);font-size:24px;font-weight:600}
+  .tnote{font-size:10.5px;color:var(--dim2)}
+
+  /* suivi des séances */
+  .dtop .right{display:flex;align-items:center;gap:10px}
+  .chk{flex:0 0 auto;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--line2);background:transparent;
+    cursor:pointer;display:grid;place-items:center;color:transparent;font-size:12px;line-height:1;transition:.15s;padding:0}
+  .chk:hover{border-color:var(--dim)}
+  .chk.on{background:var(--accent);border-color:var(--accent);color:#0a0a0b}
+  .day.done{border-color:rgba(230,163,69,.35)}
+  .day.done .grps,.day.done .dfoot,.day.done .testbox{opacity:.45}
+  .day.done .dl{color:var(--dim)}
+  .sess-line{display:flex;justify-content:space-between;align-items:baseline;margin:24px 0 8px;font-size:12.5px;color:var(--dim)}
+  .sess-line b{color:var(--tx);font-family:var(--mono);font-size:15px}
+  .sbar{height:4px;background:var(--line2);border-radius:4px;overflow:hidden}
+  .sfill{height:100%;width:0;background:var(--accent);border-radius:4px;transition:width .35s}
+  .pill .pbar{position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--accent);transition:width .3s}
+
+  footer{margin-top:26px;padding-top:18px;border-top:1px solid var(--line);color:var(--dim2);font-size:11.5px;line-height:1.7}
+  footer b{color:var(--dim)}
+  #reset-sess{color:var(--accent);cursor:pointer}
+  #reset-sess:hover{text-decoration:underline}
+  @media(max-width:680px){
+    .pills{grid-template-columns:repeat(7,1fr)}
+    .pill .wt{display:none}
+    header{align-items:flex-start}
+    .goalchip{align-items:flex-start}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>SMOLOV</h1>
+      <p>Squat · programme de force · 13 semaines</p>
+    </div>
+    <div class="goalchip">
+      <b><span id="g-start">105</span> → <span id="g-goal">130</span> kg</b>
+      <small>Test final : <span id="g-date">jeu. 31 déc. 2026</span></small>
+    </div>
+  </header>
+
+  <section class="controls">
+    <div class="field">
+      <label>1RM de départ</label>
+      <div class="il"><input id="in-start" type="number" step="2.5" value="105"></div>
+      <span class="hint">actuel, kg</span>
+    </div>
+    <div class="field auto">
+      <label>1RM après base <span id="btn-auto" title="recalculer une estimation">↻ auto</span></label>
+      <div class="il"><input id="in-post" type="number" step="2.5" value="120"></div>
+      <span class="hint">test S6, base switching + intense</span>
+    </div>
+    <div class="field">
+      <label>Objectif</label>
+      <div class="il"><input id="in-goal" type="number" step="2.5" value="130"></div>
+      <span class="hint">test final S13, kg</span>
+    </div>
+    <div class="field">
+      <label>Début du programme</label>
+      <div class="il"><input id="in-date" type="date" value="2026-10-05"></div>
+      <span class="hint">un lundi de préférence</span>
+    </div>
+  </section>
+
+  <section class="progress">
+    <div class="pcap">Cette semaine, charges calculées sur un 1RM de <b id="cap-rm">105</b> kg.</div>
+    <div class="ptrack" id="ptrack">
+      <div class="pfill" id="pfill"></div>
+      <div class="pcur" id="pcur"></div>
+    </div>
+    <div class="sess-line"><span>Séances complétées</span><span id="sess-count"><b>0</b> / 40 · 0%</span></div>
+    <div class="sbar"><div class="sfill" id="sfill"></div></div>
+  </section>
+
+  <nav class="weeks">
+    <div class="navrow">
+      <button class="arrow" id="prev">‹</button>
+      <div class="pills" id="pills"></div>
+      <button class="arrow" id="next">›</button>
+    </div>
+    <div class="legend" id="legend"></div>
+  </nav>
+
+  <div class="weekhead">
+    <div>
+      <div class="wt-name" id="wh-name">Semaine 1<span>Introduction</span></div>
+      <div class="wt-date" id="wh-date"></div>
+    </div>
+    <div class="refchip">1RM de référence <b id="wh-ref">105 kg</b></div>
+  </div>
+
+  <section class="days" id="days"></section>
+
+  <footer id="footer"></footer>
+</div>
+
+<script>
+"use strict";
+/* ---------- programme (chiffres Smolov standard) ---------- */
+const BASE_DAYS = [
+  {d:0, groups:[[4,9,70]]},
+  {d:2, groups:[[5,7,75]]},
+  {d:4, groups:[[7,5,80]]},
+  {d:5, groups:[[10,3,85]]},
+];
+const WK = [
+  {n:1, phase:'intro', rm:'start', days:[
+    {d:0, groups:[[3,8,65],[1,5,70],[2,2,75],[1,1,80]]},
+    {d:2, groups:[[3,8,65],[1,5,70],[2,2,75],[1,1,80]]},
+    {d:4, groups:[[4,5,70],[1,3,75],[2,2,80],[1,1,90]]},
+  ]},
+  {n:2, phase:'intro', rm:'start', days:[
+    {d:0, groups:[[2,2,85]]},
+    {d:2, groups:[[1,3,85]]},
+    {d:4, groups:[[1,5,85]]},
+  ]},
+  {n:3, phase:'base', rm:'start', inc:0,  days:BASE_DAYS},
+  {n:4, phase:'base', rm:'start', inc:10, days:BASE_DAYS},
+  {n:5, phase:'base', rm:'start', inc:15, days:BASE_DAYS},
+  {n:6, phase:'transition', rm:'post', days:[
+    {d:0, rest:true},{d:2, rest:true},
+    {d:4, test:'post'},{d:5, test:'post'},
+  ]},
+  {n:7, phase:'switching', rm:'post', days:[
+    {d:0, groups:[[6,2,50]]},{d:2, groups:[[6,2,55]]},{d:4, groups:[[5,3,55]]},
+  ]},
+  {n:8, phase:'switching', rm:'post', days:[
+    {d:0, groups:[[5,3,55]]},{d:2, groups:[[5,2,60]]},{d:4, groups:[[4,2,60]]},
+  ]},
+  {n:9, phase:'intense', rm:'post', days:[
+    {d:0, groups:[[1,3,65],[1,4,75],[3,4,85],[1,5,90]]},
+    {d:2, groups:[[1,3,60],[1,3,70],[1,4,80],[1,3,90],[2,5,85]]},
+    {d:4, groups:[[1,4,65],[1,4,70],[5,4,80]]},
+  ]},
+  {n:10, phase:'intense', rm:'post', days:[
+    {d:0, groups:[[1,4,60],[1,4,70],[1,4,80],[1,3,90],[2,4,90]]},
+    {d:2, groups:[[1,3,65],[1,3,75],[1,3,85],[3,3,90],[1,3,95]]},
+    {d:4, groups:[[1,3,65],[1,3,75],[1,4,85],[4,5,90]]},
+  ]},
+  {n:11, phase:'intense', rm:'post', days:[
+    {d:0, groups:[[1,3,60],[1,3,70],[1,3,80],[5,5,90]]},
+    {d:2, groups:[[1,3,60],[1,3,70],[1,3,80],[2,3,95]]},
+    {d:4, groups:[[1,3,65],[1,3,75],[1,3,85],[4,3,95]]},
+  ]},
+  {n:12, phase:'intense', rm:'post', days:[
+    {d:0, groups:[[1,3,70],[1,4,80],[5,5,90]]},
+    {d:2, groups:[[1,3,70],[1,3,80],[4,3,95]]},
+    {d:4, groups:[[1,3,75],[1,4,90],[3,4,80]]},
+  ]},
+  {n:13, phase:'taper', rm:'post', days:[
+    {d:0, groups:[[1,3,70],[1,3,80],[2,5,90],[3,4,95]]},
+    {d:3, test:'goal'},
+  ]},
+];
+const PHASES = {
+  intro:      {name:"Introduction",        tint:"rgba(148,163,184,.10)", dot:"#94a3b8"},
+  base:       {name:"Mésocycle de base",   tint:"rgba(230,163,69,.14)",  dot:"#e6a345"},
+  transition: {name:"Transition · test",   tint:"rgba(148,163,184,.10)", dot:"#9aa0a6"},
+  switching:  {name:"Switching · vitesse", tint:"rgba(96,165,250,.12)",  dot:"#60a5fa"},
+  intense:    {name:"Mésocycle intense",   tint:"rgba(239,120,80,.16)",  dot:"#ef7850"},
+  taper:      {name:"Affûtage · test final",tint:"rgba(52,211,153,.14)", dot:"#34d399"},
+};
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const r25 = w => Math.round(w/2.5)*2.5;
+const fmt = w => Number.isInteger(w) ? String(w) : w.toFixed(1).replace(/\.0$/,'');
+const DAYS_FR = ["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
+const MON_FR  = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+function parseD(str){ const [y,m,d]=str.split("-").map(Number); return new Date(y,m-1,d); }
+function addD(dt,n){ const x=new Date(dt); x.setDate(x.getDate()+n); return x; }
+function dowName(dt){ return DAYS_FR[dt.getDay()]; }
+function fmtD(dt){ return DAYS_FR[dt.getDay()].slice(0,3)+". "+dt.getDate()+" "+MON_FR[dt.getMonth()]; }
+function fmtDLong(dt){ return dowName(dt)+" "+dt.getDate()+" "+MON_FR[dt.getMonth()]+" "+dt.getFullYear(); }
+function intColor(pct){
+  if(pct>=90) return "var(--accent)";
+  const t=Math.max(0,Math.min(1,(pct-58)/(89-58)));
+  return "hsl(0 0% "+Math.round(46+t*46)+"%)";
+}
+
+/* ---------- state ---------- */
+const LS = k => "smolov."+k;
+const state = {
+  start:+ (localStorage.getItem(LS("start")) ?? 105),
+  post: localStorage.getItem(LS("post")),
+  goal:+ (localStorage.getItem(LS("goal")) ?? 130),
+  date: localStorage.getItem(LS("date")) ?? "2026-10-05",
+  week:+ (localStorage.getItem(LS("week")) ?? 0),
+  postTouched: localStorage.getItem(LS("postTouched"))==="1",
+};
+function autoPost(){ return r25(state.start + (state.goal-state.start)*0.6); }
+if(state.post===null){ state.post = autoPost(); state.postTouched=false; }
+else state.post = +state.post;
+
+function rmVal(key){ return key==='start'?state.start : key==='goal'?state.goal : state.post; }
+
+/* ---------- suivi des séances ---------- */
+const done = new Set(JSON.parse(localStorage.getItem(LS("done"))||"[]"));
+function saveDone(){ localStorage.setItem(LS("done"),JSON.stringify([...done])); }
+const TOTAL = WK.reduce((a,w)=>a+w.days.filter(d=>!d.rest).length,0);
+function weekCount(w){
+  const t=w.days.filter(d=>!d.rest);
+  return {done:t.filter(d=>done.has(w.n+"-"+d.d)).length, total:t.length};
+}
+function resetSessions(){
+  if(confirm("Effacer toutes les séances cochées ?")){ done.clear(); saveDone(); render(); }
+}
+
+/* ---------- init inputs ---------- */
+$("#in-start").value = state.start;
+$("#in-post").value  = state.post;
+$("#in-goal").value  = state.goal;
+$("#in-date").value  = state.date;
+
+function todayIndex(){
+  const t=new Date(); t.setHours(0,0,0,0);
+  const s=parseD(state.date);
+  const diff=Math.floor((t-s)/86400000);
+  if(diff<0) return -1;
+  const w=Math.floor(diff/7);
+  return (w>=0 && w<13)? w : -1;
+}
+
+/* ---------- render ---------- */
+function renderPills(){
+  const pills=$("#pills"); pills.innerHTML="";
+  const ti=todayIndex();
+  WK.forEach((w,i)=>{
+    const ph=PHASES[w.phase];
+    const el=document.createElement("div");
+    el.className="pill"+(i===state.week?" on":"")+(i===ti?" today":"");
+    el.style.background=ph.tint;
+    const c=weekCount(w), frac=c.total?c.done/c.total*100:0;
+    el.innerHTML='<span class="wn">'+w.n+'</span><span class="wt">'+ph.name.split(" ")[0].slice(0,4)+'</span>'+
+      '<span class="pbar" style="width:'+frac+'%"></span>';
+    el.title="Semaine "+w.n+" · "+ph.name+" · "+c.done+"/"+c.total+" séances";
+    el.onclick=()=>{ state.week=i; save(); render(); };
+    pills.appendChild(el);
+  });
+  const seen=new Set(), leg=$("#legend"); leg.innerHTML="";
+  WK.forEach(w=>{ if(seen.has(w.phase))return; seen.add(w.phase);
+    const ph=PHASES[w.phase];
+    leg.insertAdjacentHTML("beforeend",'<span><i style="background:'+ph.dot+'"></i>'+ph.name+'</span>');
+  });
+}
+
+function dayCard(w,day){
+  const dt=addD(parseD(state.date), (w.n-1)*7 + day.d);
+  const key=w.n+"-"+day.d, on=done.has(key), session=!day.rest;
+  const chk = session ? '<button class="chk'+(on?' on':'')+'" data-key="'+key+'" title="Marquer comme fait / non fait">✓</button>' : '';
+  const head='<div class="dtop"><span class="dl">'+dowName(dt)+'</span>'+
+    '<span class="right"><span class="dd">'+dt.getDate()+" "+MON_FR[dt.getMonth()]+'</span>'+chk+'</span></div>';
+  if(day.rest)
+    return '<div class="day rest">'+head+'<div class="restbox">Repos</div></div>';
+  if(day.test){
+    const w2 = day.test==='goal' ? state.goal : r25(state.post);
+    const tag = day.test==='goal' ? 'Objectif — nouveau record' : 'Établir le nouveau 1RM';
+    return '<div class="day test'+(on?' done':'')+'">'+head+
+      '<div class="testbox"><span class="tflag">★ Test 1RM</span>'+
+      '<div class="trow"><span>1 × 1</span><b>'+fmt(w2)+' kg</b></div>'+
+      '<span class="tnote">'+tag+' · montée progressive à l\'échauffement</span></div></div>';
+  }
+  const RM=rmVal(w.rm), inc=w.inc||0;
+  let reps=0, ton=0, rows="";
+  day.groups.forEach(([s,rp,pct])=>{
+    const wt=r25(RM*pct/100+inc); reps+=s*rp; ton+=s*rp*wt;
+    rows+='<div class="grp"><span class="dot" style="background:'+intColor(pct)+'"></span>'+
+      '<span class="sr">'+s+' × '+rp+'</span><span class="pc">'+pct+'%</span>'+
+      '<b class="wt">'+fmt(wt)+'<i>kg</i></b></div>';
+  });
+  return '<div class="day'+(on?' done':'')+'">'+head+'<div class="grps">'+rows+'</div>'+
+    '<div class="dfoot"><span>'+reps+' reps</span><span>'+fmt(Math.round(ton))+' kg soulevés</span></div></div>';
+}
+
+function renderWeek(){
+  const w=WK[state.week], ph=PHASES[w.phase];
+  $("#wh-name").innerHTML="Semaine "+w.n+"<span>"+ph.name+"</span>";
+  const start=parseD(state.date);
+  const mon=addD(start,(w.n-1)*7), last=addD(mon,6);
+  $("#wh-date").textContent="du "+fmtD(mon)+" au "+fmtD(last)
+    + (w.inc? "  ·  +"+w.inc+" kg sur toutes les séries" : "");
+  const rv=rmVal(w.rm);
+  $("#wh-ref").textContent=fmt(rv)+" kg";
+  $("#cap-rm").textContent=fmt(rv);
+  $("#days").innerHTML = w.days.map(d=>dayCard(w,d)).join("");
+}
+
+function renderProgress(){
+  const {start,post,goal}=state;
+  const lo=start, hi=goal, span=Math.max(1,hi-lo);
+  const pct=v=>Math.max(0,Math.min(100,(v-lo)/span*100));
+  const track=$("#ptrack");
+  track.querySelectorAll(".pmark").forEach(e=>e.remove());
+  const marks=[["Départ",start],["Post-base",post],["Objectif",goal]];
+  marks.forEach(([lab,v])=>{
+    const m=document.createElement("div");
+    m.className="pmark"+(v<=rmVal(WK[state.week].rm)?" on":"");
+    m.style.left=pct(v)+"%";
+    m.innerHTML='<b>'+fmt(v)+'</b><i></i><span>'+lab+'</span>';
+    track.appendChild(m);
+  });
+  const cur=rmVal(WK[state.week].rm);
+  $("#pfill").style.width=pct(cur)+"%";
+  $("#pcur").style.left=pct(cur)+"%";
+}
+
+function renderSessions(){
+  const d=done.size, pct=TOTAL?Math.round(d/TOTAL*100):0;
+  $("#sess-count").innerHTML="<b>"+d+"</b> / "+TOTAL+" · "+pct+"%";
+  $("#sfill").style.width=pct+"%";
+}
+
+function renderHeader(){
+  $("#g-start").textContent=fmt(state.start);
+  $("#g-goal").textContent=fmt(state.goal);
+  const testDt=addD(parseD(state.date),12*7+3); // S13, jeudi
+  $("#g-date").textContent=fmtDLong(testDt);
+}
+
+function renderFooter(){
+  $("#footer").innerHTML=
+    '<b>Comment lire —</b> chaque carte = une séance. Format <b>séries × reps · %1RM · charge</b>, '+
+    'charges arrondies au <b>2,5 kg</b>. Le point passe à l\'ambre pour les séries lourdes (≥ 90 %). '+
+    'Les semaines 1 à 5 se calculent sur ton 1RM de départ ; à partir de la semaine 6 (test), tout se recale sur ton <b>1RM post-base</b>.<br>'+
+    '<b>Progression base —</b> S3 charges de base, <b>S4 +10 kg</b>, <b>S5 +15 kg</b> sur chaque série (adaptation métrique du +20/+30 lb original).<br>'+
+    '<b>Note —</b> +25 kg sur un cycle est très ambitieux : ajuste le « 1RM post-base » avec ton vrai résultat du test S6, et recale ton objectif si besoin. Volume énorme → sommeil, alimentation et récupération sont non négociables. '+
+    'Programme timé pour que le test final tombe le <b>jeudi 31 décembre 2026</b> (début lundi 5 oct.).<br>'+
+    '<b>Suivi —</b> clique le rond en haut de chaque séance pour la marquer faite (barre de progression + sauvegarde auto). <a id="reset-sess" onclick="resetSessions()">Réinitialiser le suivi</a>.<br>'+
+    '<span style="color:var(--dim)">Barème Smolov d\'après liftosaur.com &amp; liftvault.com.</span>';
+}
+
+function render(){
+  renderHeader(); renderPills(); renderWeek(); renderProgress(); renderSessions(); renderFooter();
+  $("#prev").disabled=state.week<=0;
+  $("#next").disabled=state.week>=12;
+}
+
+/* ---------- events ---------- */
+function save(){
+  localStorage.setItem(LS("start"),state.start);
+  localStorage.setItem(LS("post"),state.post);
+  localStorage.setItem(LS("goal"),state.goal);
+  localStorage.setItem(LS("date"),state.date);
+  localStorage.setItem(LS("week"),state.week);
+  localStorage.setItem(LS("postTouched"),state.postTouched?"1":"0");
+}
+function onNum(id,key){
+  $(id).addEventListener("input",e=>{
+    const v=parseFloat(e.target.value);
+    if(!isNaN(v)) state[key]=v;
+    if((key==="start"||key==="goal") && !state.postTouched){
+      state.post=autoPost(); $("#in-post").value=state.post;
+    }
+    save(); render();
+  });
+}
+onNum("#in-start","start"); onNum("#in-goal","goal");
+$("#in-post").addEventListener("input",e=>{
+  const v=parseFloat(e.target.value); if(!isNaN(v)) state.post=v;
+  state.postTouched=true; save(); render();
+});
+$("#in-date").addEventListener("input",e=>{ state.date=e.target.value; save(); render(); });
+$("#btn-auto").addEventListener("click",()=>{
+  state.post=autoPost(); state.postTouched=false; $("#in-post").value=state.post; save(); render();
+});
+$("#prev").onclick=()=>{ if(state.week>0){state.week--;save();render();} };
+$("#next").onclick=()=>{ if(state.week<12){state.week++;save();render();} };
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="INPUT") return;
+  if(e.key==="ArrowLeft"&&state.week>0){state.week--;save();render();}
+  if(e.key==="ArrowRight"&&state.week<12){state.week++;save();render();}
+});
+$("#days").addEventListener("click",e=>{
+  const b=e.target.closest(".chk"); if(!b) return;
+  const k=b.dataset.key;
+  if(done.has(k)) done.delete(k); else done.add(k);
+  saveDone(); render();
+});
+
+/* default to current week if inside the program */
+if(!localStorage.getItem(LS("week"))){
+  const ti=todayIndex(); if(ti>=0) state.week=ti;
+}
+render();
+</script>
+</body>
+</html>
