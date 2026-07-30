@@ -458,7 +458,7 @@ const state = {
   postTouched: localStorage.getItem(LS("postTouched"))==="1",
   bar:+ (localStorage.getItem(LS("bar")) ?? 20),
   showPlates: localStorage.getItem(LS("showPlates"))==="1",
-  plates: JSON.parse(localStorage.getItem(LS("plates")) || "[20,10,5]"),
+  plates: JSON.parse(localStorage.getItem(LS("plates")) || "[20,10,5,2.5]"),
 };
 function autoPost(){ return r5(state.start + (state.goal-state.start)*0.6); }
 if(state.post===null){ state.post = autoPost(); state.postTouched=false; }
