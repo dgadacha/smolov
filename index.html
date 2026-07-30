@@ -40,6 +40,12 @@
   .field .hint{font-size:10px;color:var(--dim2)}
   .field.auto label span{color:var(--accent);cursor:pointer;text-transform:none;letter-spacing:0;font-size:10px;white-space:nowrap}
   .field.auto label span:hover{text-decoration:underline}
+  .ctrl-foot{grid-column:1 / -1;display:flex;justify-content:space-between;align-items:center;gap:8px 14px;flex-wrap:wrap;margin-top:4px;padding-top:12px;border-top:1px solid var(--line)}
+  .ctrl-note{font-size:11px;color:var(--dim2);display:flex;align-items:center;gap:8px}
+  .saved{opacity:0;transition:opacity .25s;color:var(--accent);font-family:var(--mono);font-size:11px;white-space:nowrap}
+  .saved.show{opacity:1}
+  .linkbtn{background:none;border:0;color:var(--dim);font:inherit;font-size:11px;cursor:pointer;padding:4px 0;text-decoration:underline;-webkit-tap-highlight-color:transparent}
+  .linkbtn:active,.linkbtn:hover{color:var(--accent)}
 
   /* progress */
   .progress{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 18px 24px;margin-bottom:12px}
@@ -183,6 +189,10 @@
       <label>Début du programme</label>
       <div class="il"><input id="in-date" type="date" value="2026-10-05"></div>
       <span class="hint">un lundi de préférence</span>
+    </div>
+    <div class="ctrl-foot">
+      <span class="ctrl-note">Réglages sauvegardés dans ce navigateur <span class="saved" id="saved-ind">✓ enregistré</span></span>
+      <button class="linkbtn" onclick="resetConfig()">Réinitialiser les réglages</button>
     </div>
   </section>
 
@@ -358,7 +368,7 @@ function renderPills(){
     el.innerHTML='<span class="wn">'+w.n+'</span><span class="wt">'+ph.name.split(" ")[0].slice(0,4)+'</span>'+
       '<span class="pbar" style="width:'+frac+'%"></span>';
     el.title="Semaine "+w.n+" · "+ph.name+" · "+c.done+"/"+c.total+" séances";
-    el.onclick=()=>{ state.week=i; save(); render(); };
+    el.onclick=()=>{ state.week=i; save(); flashSaved(); render(); };
     pills.appendChild(el);
   });
   // centre la semaine active dans la bande scrollable (mobile)
@@ -474,6 +484,21 @@ function save(){
   localStorage.setItem(LS("week"),state.week);
   localStorage.setItem(LS("postTouched"),state.postTouched?"1":"0");
 }
+let savedTimer;
+function flashSaved(){
+  const el=$("#saved-ind"); if(!el) return;
+  el.classList.add("show");
+  clearTimeout(savedTimer);
+  savedTimer=setTimeout(()=>el.classList.remove("show"),1500);
+}
+function resetConfig(){
+  if(!confirm("Réinitialiser les réglages (1RM, objectif, date) aux valeurs par défaut ?")) return;
+  state.start=105; state.goal=130; state.date="2026-10-05";
+  state.postTouched=false; state.post=autoPost();
+  $("#in-start").value=state.start; $("#in-goal").value=state.goal;
+  $("#in-date").value=state.date;  $("#in-post").value=state.post;
+  save(); flashSaved(); render();
+}
 function onNum(id,key){
   $(id).addEventListener("input",e=>{
     const v=parseFloat(e.target.value);
@@ -481,17 +506,17 @@ function onNum(id,key){
     if((key==="start"||key==="goal") && !state.postTouched){
       state.post=autoPost(); $("#in-post").value=state.post;
     }
-    save(); render();
+    save(); flashSaved(); render();
   });
 }
 onNum("#in-start","start"); onNum("#in-goal","goal");
 $("#in-post").addEventListener("input",e=>{
   const v=parseFloat(e.target.value); if(!isNaN(v)) state.post=v;
-  state.postTouched=true; save(); render();
+  state.postTouched=true; save(); flashSaved(); render();
 });
-$("#in-date").addEventListener("input",e=>{ state.date=e.target.value; save(); render(); });
+$("#in-date").addEventListener("input",e=>{ state.date=e.target.value; save(); flashSaved(); render(); });
 $("#btn-auto").addEventListener("click",()=>{
-  state.post=autoPost(); state.postTouched=false; $("#in-post").value=state.post; save(); render();
+  state.post=autoPost(); state.postTouched=false; $("#in-post").value=state.post; save(); flashSaved(); render();
 });
 $("#prev").onclick=()=>{ if(state.week>0){state.week--;save();render();} };
 $("#next").onclick=()=>{ if(state.week<12){state.week++;save();render();} };
