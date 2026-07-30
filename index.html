@@ -172,17 +172,17 @@
   <section class="controls">
     <div class="field">
       <label>1RM de départ</label>
-      <div class="il"><input id="in-start" type="number" step="2.5" value="105"></div>
+      <div class="il"><input id="in-start" type="number" step="5" value="105"></div>
       <span class="hint">actuel, kg</span>
     </div>
     <div class="field auto">
       <label>1RM après base <span id="btn-auto" title="recalculer une estimation">↻ auto</span></label>
-      <div class="il"><input id="in-post" type="number" step="2.5" value="120"></div>
+      <div class="il"><input id="in-post" type="number" step="5" value="120"></div>
       <span class="hint">test S6, base switching + intense</span>
     </div>
     <div class="field">
       <label>Objectif</label>
-      <div class="il"><input id="in-goal" type="number" step="2.5" value="130"></div>
+      <div class="il"><input id="in-goal" type="number" step="5" value="130"></div>
       <span class="hint">test final S13, kg</span>
     </div>
     <div class="field">
@@ -297,7 +297,7 @@ const PHASES = {
 
 /* ---------- helpers ---------- */
 const $ = s => document.querySelector(s);
-const r25 = w => Math.round(w/2.5)*2.5;
+const r5 = w => Math.round(w/5)*5;
 const fmt = w => Number.isInteger(w) ? String(w) : w.toFixed(1).replace(/\.0$/,'');
 const DAYS_FR = ["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
 const MON_FR  = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
@@ -322,7 +322,7 @@ const state = {
   week:+ (localStorage.getItem(LS("week")) ?? 0),
   postTouched: localStorage.getItem(LS("postTouched"))==="1",
 };
-function autoPost(){ return r25(state.start + (state.goal-state.start)*0.6); }
+function autoPost(){ return r5(state.start + (state.goal-state.start)*0.6); }
 if(state.post===null){ state.post = autoPost(); state.postTouched=false; }
 else state.post = +state.post;
 
@@ -391,7 +391,7 @@ function dayCard(w,day){
   if(day.rest)
     return '<div class="day rest">'+head+'<div class="restbox">Repos</div></div>';
   if(day.test){
-    const w2 = day.test==='goal' ? state.goal : r25(state.post);
+    const w2 = day.test==='goal' ? state.goal : r5(state.post);
     const tag = day.test==='goal' ? 'Objectif — nouveau record' : 'Établir le nouveau 1RM';
     return '<div class="day test'+(on?' done':'')+'">'+head+
       '<div class="testbox"><span class="tflag">★ Test 1RM</span>'+
@@ -401,7 +401,7 @@ function dayCard(w,day){
   const RM=rmVal(w.rm), inc=w.inc||0;
   let reps=0, ton=0, rows="";
   day.groups.forEach(([s,rp,pct])=>{
-    const wt=r25(RM*pct/100+inc); reps+=s*rp; ton+=s*rp*wt;
+    const wt=r5(RM*pct/100+inc); reps+=s*rp; ton+=s*rp*wt;
     rows+='<div class="grp"><span class="dot" style="background:'+intColor(pct)+'"></span>'+
       '<span class="sr">'+s+' × '+rp+'</span><span class="pc">'+pct+'%</span>'+
       '<b class="wt">'+fmt(wt)+'<i>kg</i></b></div>';
@@ -460,7 +460,7 @@ function renderHeader(){
 function renderFooter(){
   $("#footer").innerHTML=
     '<b>Comment lire —</b> chaque carte = une séance. Format <b>séries × reps · %1RM · charge</b>, '+
-    'charges arrondies au <b>2,5 kg</b>. Le point passe à l\'ambre pour les séries lourdes (≥ 90 %). '+
+    'charges arrondies au <b>5 kg</b>. Le point passe à l\'ambre pour les séries lourdes (≥ 90 %). '+
     'Les semaines 1 à 5 se calculent sur ton 1RM de départ ; à partir de la semaine 6 (test), tout se recale sur ton <b>1RM post-base</b>.<br>'+
     '<b>Progression base —</b> S3 charges de base, <b>S4 +10 kg</b>, <b>S5 +15 kg</b> sur chaque série (adaptation métrique du +20/+30 lb original).<br>'+
     '<b>Note —</b> +25 kg sur un cycle est très ambitieux : ajuste le « 1RM post-base » avec ton vrai résultat du test S6, et recale ton objectif si besoin. Volume énorme → sommeil, alimentation et récupération sont non négociables. '+

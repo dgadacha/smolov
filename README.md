@@ -9,7 +9,7 @@ Site **100 % statique** : un seul fichier `index.html` (HTML/CSS/JS vanilla, auc
 
 - Cycle Smolov complet : introduction, mésocycle de base, transition/test, switching, mésocycle intense, affûtage + test final.
 - Charges calculées depuis **deux 1RM** : le 1RM de départ (phases 1–5) et le 1RM post-base (phases 6–13, éditable).
-- Charges arrondies au 2,5 kg, séries lourdes (≥ 90 %) mises en évidence.
+- Charges arrondies au 5 kg, séries lourdes (≥ 90 %) mises en évidence.
 - Suivi des séances (cases à cocher) + barres de progression, sauvegardés dans le navigateur (localStorage).
 - Programme calé pour que le test final tombe le 31 décembre 2026 (dates de début modifiables).
 
