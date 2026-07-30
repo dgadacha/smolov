@@ -16,6 +16,8 @@ Site **100 % statique** : un seul fichier `index.html` (HTML/CSS/JS vanilla, auc
 - Application installable (PWA) + fonctionnement hors-ligne (service worker).
 - Export calendrier (.ics) : les 40 séances avec rappels, importables dans l'app calendrier native.
 - Icônes Lucide inline (aucune dépendance réseau).
+- Timer de repos flottant (presets, ±15 s, bip + vibration en fin).
+- Journal par séance : poids réellement soulevé + RPE + note, avec écart au poids prévu (vert/orange). Sauvegardé.
 - Programme calé pour que le test final tombe le 31 décembre 2026 (dates de début modifiables).
 
 ## Utilisation locale
