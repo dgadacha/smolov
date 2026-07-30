@@ -297,7 +297,7 @@ const PHASES = {
 
 /* ---------- helpers ---------- */
 const $ = s => document.querySelector(s);
-const r5 = w => Math.round(w/5)*5;
+const r5 = w => Math.floor(w/5)*5;
 const fmt = w => Number.isInteger(w) ? String(w) : w.toFixed(1).replace(/\.0$/,'');
 const DAYS_FR = ["dimanche","lundi","mardi","mercredi","jeudi","vendredi","samedi"];
 const MON_FR  = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
@@ -460,7 +460,7 @@ function renderHeader(){
 function renderFooter(){
   $("#footer").innerHTML=
     '<b>Comment lire —</b> chaque carte = une séance. Format <b>séries × reps · %1RM · charge</b>, '+
-    'charges arrondies au <b>5 kg</b>. Le point passe à l\'ambre pour les séries lourdes (≥ 90 %). '+
+    'charges arrondies au <b>5 kg inférieur</b>. Le point passe à l\'ambre pour les séries lourdes (≥ 90 %). '+
     'Les semaines 1 à 5 se calculent sur ton 1RM de départ ; à partir de la semaine 6 (test), tout se recale sur ton <b>1RM post-base</b>.<br>'+
     '<b>Progression base —</b> S3 charges de base, <b>S4 +10 kg</b>, <b>S5 +15 kg</b> sur chaque série (adaptation métrique du +20/+30 lb original).<br>'+
     '<b>Note —</b> +25 kg sur un cycle est très ambitieux : ajuste le « 1RM post-base » avec ton vrai résultat du test S6, et recale ton objectif si besoin. Volume énorme → sommeil, alimentation et récupération sont non négociables. '+
