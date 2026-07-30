@@ -177,7 +177,14 @@
   .plate{font-family:var(--mono);font-size:10.5px;color:var(--tx);background:var(--panel2);border:1px solid var(--line);
     border-left:3px solid var(--pc,var(--dim));border-radius:5px;padding:1px 6px;white-space:nowrap}
   .plate.none{border-left-color:var(--dim);color:var(--dim)}
+  .plate.rem{border-color:rgba(214,69,69,.45);border-left-color:#d64545;color:#d64545}
   .foot-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .plate-pick-wrap{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .pp-lbl{font-size:10px;color:var(--dim2);text-transform:uppercase;letter-spacing:.08em}
+  .plate-pick{display:inline-flex;flex-wrap:wrap;gap:5px}
+  .pp{font-family:var(--mono);font-size:11px;color:var(--dim2);background:transparent;border:1px solid var(--line);
+    border-left:3px solid var(--line);border-radius:6px;padding:3px 8px;cursor:pointer;transition:.12s;-webkit-tap-highlight-color:transparent}
+  .pp.on{color:var(--tx);border-color:var(--line2);border-left-color:var(--pc);background:var(--panel2)}
 
   footer{margin-top:24px;padding-top:18px;border-top:1px solid var(--line);color:var(--dim2);font-size:11.5px;line-height:1.7}
   footer b{color:var(--dim)}
@@ -289,6 +296,7 @@
   <div class="plate-ctrl">
     <label class="switch"><input type="checkbox" id="tg-plates"><span class="track"></span> Disques par côté</label>
     <span class="bar-set">Barre <input id="in-bar" type="number" step="2.5" min="0" value="20"> kg</span>
+    <span class="plate-pick-wrap"><span class="pp-lbl">mes disques</span><span class="plate-pick" id="plate-pick"></span></span>
   </div>
 
   <section class="days" id="days"></section>
@@ -405,8 +413,9 @@ function platesFor(w,bar){
   let per=(w-bar)/2;
   if(per<0) return {err:"< barre"};
   if(per===0) return {barOnly:true};
+  const avail=[...state.plates].sort((a,b)=>b-a);
   const list=[];
-  for(const p of PLATES){ const n=Math.floor((per+1e-9)/p); if(n>0){ list.push([p,n]); per=+(per-n*p).toFixed(3); } }
+  for(const p of avail){ const n=Math.floor((per+1e-9)/p); if(n>0){ list.push([p,n]); per=+(per-n*p).toFixed(3); } }
   return {list, rem: per>0.01?per:0};
 }
 function plateLine(w){
@@ -416,9 +425,26 @@ function plateLine(w){
   else if(r.barOnly) chips='<span class="plate none">barre seule</span>';
   else {
     chips=r.list.map(([p,n])=>'<span class="plate" style="--pc:'+plateColor(p)+'">'+(n>1?n+"× ":"")+plateFmt(p)+'</span>').join('');
-    if(r.rem) chips+='<span class="plate none">+'+plateFmt(r.rem)+' ?</span>';
+    if(r.rem) chips+='<span class="plate rem" title="non atteignable avec tes disques">reste '+plateFmt(r.rem)+'</span>';
   }
   return '<div class="plate-line"><span class="pl-lbl">côté</span>'+chips+'</div>';
+}
+function renderPlatePick(){
+  const wrap=$("#plate-pick"); if(!wrap) return;
+  wrap.innerHTML="";
+  PLATES.forEach(p=>{
+    const on=state.plates.includes(p);
+    const b=document.createElement("button");
+    b.type="button"; b.className="pp"+(on?" on":"");
+    b.style.setProperty("--pc",plateColor(p));
+    b.textContent=plateFmt(p);
+    b.title=(on?"J'ai":"Je n'ai pas")+" des disques de "+plateFmt(p)+" kg";
+    b.onclick=()=>{
+      state.plates = on ? state.plates.filter(x=>x!==p) : [...state.plates,p].sort((a,b)=>b-a);
+      save(); flashSaved(); render();
+    };
+    wrap.appendChild(b);
+  });
 }
 
 /* ---------- state ---------- */
@@ -432,6 +458,7 @@ const state = {
   postTouched: localStorage.getItem(LS("postTouched"))==="1",
   bar:+ (localStorage.getItem(LS("bar")) ?? 20),
   showPlates: localStorage.getItem(LS("showPlates"))==="1",
+  plates: JSON.parse(localStorage.getItem(LS("plates")) || "[20,10,5]"),
 };
 function autoPost(){ return r5(state.start + (state.goal-state.start)*0.6); }
 if(state.post===null){ state.post = autoPost(); state.postTouched=false; }
@@ -589,7 +616,7 @@ function renderFooter(){
 }
 
 function render(){
-  renderHeader(); renderPills(); renderWeek(); renderProgress(); renderSessions(); renderFooter();
+  renderHeader(); renderPills(); renderWeek(); renderProgress(); renderSessions(); renderPlatePick(); renderFooter();
   $("#prev").disabled=state.week<=0;
   $("#next").disabled=state.week>=12;
 }
@@ -604,6 +631,7 @@ function save(){
   localStorage.setItem(LS("postTouched"),state.postTouched?"1":"0");
   localStorage.setItem(LS("bar"),state.bar);
   localStorage.setItem(LS("showPlates"),state.showPlates?"1":"0");
+  localStorage.setItem(LS("plates"),JSON.stringify(state.plates));
 }
 let savedTimer;
 function flashSaved(){
